@@ -38,5 +38,12 @@ const UsuarioSchema = Schema({
 
 })
 
+// Este código se utiliza para definir la forma en que se serializa un objeto de usuario en una cadena JSON. El método toJSON() elimina las propiedades __v y password del objeto de usuario devuelto, lo que garantiza que no se incluyan en la cadena JSON.
+//Para proteger la seguridad del usuario, se eliminan las propiedades sensibles, como la contraseña, antes de enviar el objeto de usuario como una cadena JSON.
+UsuarioSchema.methods.toJSON = function(){
+    const { __v, password, ...usuario } = this.toObject();
+    return usuario
+}
+
 
 module.exports = model( "Usuario", UsuarioSchema );
