@@ -49,7 +49,6 @@ const usuarioPost = async (req, res = response)=> {
     await usuario.save();
  
     res.status(201).json({    
-        msg:"post API-COntroller",
         usuario
         });
 
