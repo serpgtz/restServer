@@ -20,7 +20,7 @@ const usuarioPut = async(req, res = response)=> {
 
     const id = req.params.id;
 
-    const {password, google,correo, ...restoInfo} = req.body
+    const {_id,password, google,correo, ...restoInfo} = req.body
 
     // validar contra base de datos
     if (password){

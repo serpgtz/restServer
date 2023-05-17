@@ -16,11 +16,19 @@ const existeEmailValidator = async (correo) => {
     };
 }
 
+const existeUsuariobyId = async (id) => {
+    const existeUsuario = await Usuario.findById(id)
+        if(!existeUsuario){
+        throw new Error (`El Id: ${id} no existe`)
+    };
+}
+
 
 
 
 
 module.exports = {
     esRoleValido,
-    existeEmailValidator
+    existeEmailValidator,
+    existeUsuariobyId
 }
