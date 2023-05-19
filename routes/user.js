@@ -28,7 +28,10 @@ router.post('/',[
     validarCampos
 ], usuarioPost  )
 
-router.delete('/', usuarioDelete)
+router.delete('/:id',[
+    check("id","No es un Id Valido tracala").isMongoId(),
+    check("id").custom(existeUsuariobyId),
+],validarCampos, usuarioDelete)
 
 router.patch("/", usuarioPatch)
   
