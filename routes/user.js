@@ -4,6 +4,7 @@ const { usuariosGet, usuarioPut, usuarioPost, usuarioDelete, usuarioPatch } = re
 
 const {validarCampos} = require("../middlewares/validar-campos")
 const {validarJWT} = require("../middlewares/validar-jwt")
+const {esAdminrole} = require("../middlewares/validar-roles")
 const {esRoleValido,existeEmailValidator,existeUsuariobyId} = require("../helpers/db-validators")
 
 
@@ -32,6 +33,7 @@ router.post('/',[
 
 router.delete('/:id',[
     validarJWT,
+    esAdminrole,
     check("id","No es un Id Valido tracala").isMongoId(),
     check("id").custom(existeUsuariobyId),
 ],validarCampos, usuarioDelete)
