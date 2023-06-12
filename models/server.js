@@ -12,9 +12,13 @@ class Server {
         this.port=process.env.PORT || 3000;
 
         this.paths = {
-            usuarios:"/api/usuarios",
+            auth: "/api/auth",
             categorias:"/api/categorias",
-            auth: "/api/auth"
+            productos:"/api/productos",
+            usuarios:"/api/usuarios",
+           
+           
+
         }
       
 
@@ -54,6 +58,7 @@ class Server {
         this.app.use(this.paths.auth, require("../routes/auth"))
         this.app.use(this.paths.usuarios, require("../routes/user"))
         this.app.use(this.paths.categorias,require("../routes/categorias"))
+        this.app.use(this.paths.productos,require("../routes/productos"))
           
     }
 
