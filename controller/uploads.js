@@ -13,11 +13,18 @@ const cargarArchivo = async(req,res=response) => {
       return;
     }
 
-    const nombre = await subirArchivo(req.files);
+    try {
+        //  const nombre = await subirArchivo(req.files,["txt"],"textos"); aqui un ejemplo como le paso que formato quiero que acepte y el nombre de la carperta en donde quiero que se guarden
+         const nombre = await subirArchivo(req.files);
 
-    res.json({
-        nombre
+         res.json({
+         nombre
     })
+    } catch (msg) {
+        res.status(400).json({msg})
+    }   
+
+    
     
   
   
@@ -25,7 +32,20 @@ const cargarArchivo = async(req,res=response) => {
     
 }
 
+const actualizarImagen = async( req, res=response ) => {
+
+        const {id, coleccion} = req.params;
+
+        res.json({
+            id,
+            coleccion
+        })
+
+
+}
+
 
 module.exports = {
     cargarArchivo,
+    actualizarImagen,
 }

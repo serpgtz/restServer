@@ -1,0 +1,1373 @@
+movieData> db.movies.find({"rating.average":{$gte:9}},{name:1,genres:1,"network.country.name":1})
+
+esto sirve para seleccionar el promedio de rating de 9 hacia arriba
+y de que solo imprima los campos: nombre, genres y network
+
+
+
+movieData> db.movies.find({$or: [{"rating.average":{$lt:5}},{"rating.average":{$gt:9.3}}]})
+este es una busqueda con el operador "or" aqui busca el promedio de rating de menos de 5 hacia abajo o de 
+arriba de 9.3
+
+movieData> db.movies.find({$nor: [{"rating.average":{$lt:5}},{"rating.average":{$gt:9.3}}]})
+
+aqui es alreves en nor, busca lo que esta enmedio de arriba de 5 y abajode 9.3
+
+		operador and
+movieData> db.movies.find({$and:[{"rating.average":{$gt:9}},{genres:"Drama"}]}
+
+aqui esta buscando que cumpla con 2 criterios, que promedio de rating sea arriba de 9 y que el genero sea drama
+
+
+movieData> db.movies.find({"rating.average":{$gt:9},genres:"Drama"})
+
+esta hace lo mismo pero solo con el filtro
+
+
+operador not
+
+movieData> db.movies.find({runtime:{$not:{$eq:60}}}).count()
+
+trae todos los que no sean iguales a 60
+
+
+operador ne
+
+movieData> db.movies.find({runtime:{$ne:60}}).count
+
+matche todos los que no sean iguales a 60
+
+
+		exist
+
+ejemplo:
+
+user> db.users.insertMany([{name:"Max",hobbies:[{title:"sport", frequency:3},{title:"cooking", frequency:6}]
+,phone:01334567},{name:"sergio",hobbies:[{title:"cooking",frequency:5},{title:"cars",frequency:2}],phone:"012090788",age:30}])
+
+user> db.users.find()
+[
+  {
+    _id: ObjectId("640fee97c3933dd3b7192911"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    phone: 375159
+  },
+  {
+    _id: ObjectId("640fee97c3933dd3b7192912"),
+    name: 'sergio',
+    hobbies: [
+      { title: 'cooking', frequency: 5 },
+      { title: 'cars', frequency: 2 }
+    ],
+    phone: '012090788',
+    age: 30
+  }
+]
+
+
+con exist te filtra si existe el campo a buscar en ese caso es age
+
+user> db.users.find({age:{$exists:true}})
+[
+  {
+    _id: ObjectId("640fee97c3933dd3b7192912"),
+    name: 'sergio',
+    hobbies: [
+      { title: 'cooking', frequency: 5 },
+      { title: 'cars', frequency: 2 }
+    ],
+    phone: '012090788',
+    age: 30
+  },
+  {
+    _id: ObjectId("640fef89c3933dd3b7192914"),
+    name: 'sergio',
+    hobbies: [
+      { title: 'cooking', frequency: 5 },
+      { title: 'cars', frequency: 2 }
+    ],
+    phone: '012090788',
+    age: 30
+  }
+]
+
+ exist en false encontaria los que no tienen el campo de edad
+
+user> db.users.find({age:{$exists:false }})
+[
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    phone: 375159
+  }
+]
+
+
+ si queremos sacar los que en age no sean null seria usando $ne:null:
+
+ser> db.users.find({age:{$exists:true,$ne:null }})
+[
+  {
+    _id: ObjectId("640fee97c3933dd3b7192912"),
+    name: 'sergio',
+    hobbies: [
+      { title: 'cooking', frequency: 5 },
+      { title: 'cars', frequency: 2 }
+    ],
+    phone: '012090788',
+    age: 30
+  }
+]
+
+  operador de elementos $type
+
+es para filtrar por algun tipo de dato aqui un ejemplo:
+
+
+user> db.users.find({phone:{$type: "number"}})
+[
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    phone: 375159
+  }
+]
+
+
+			operador de evalucaion $regex
+
+se usa para buscar algun fraxmento de texto ejemplo:
+
+
+movieData> db.movies.find({summary:{$regex: /musica/}})
+
+[
+  {
+    _id: ObjectId("640d15ac69b830e794ba5625"),
+    id: 8,
+    url: 'http://www.tvmaze.com/shows/8/glee',
+    name: 'Glee',
+    type: 'Scripted',
+    language: 'English',
+    genres: [ 'Drama', 'Music', 'Romance' ],
+    status: 'Ended',
+    runtime: 60,
+    premiered: '2009-05-19',
+    officialSite: 'http://www.fox.com/glee',
+    schedule: { time: '21:00', days: [ 'Tuesday' ] },
+    rating: { average: 6.7 },
+    weight: 71,
+    network: {
+      id: 4,
+      name: 'FOX',
+      country: {
+        name: 'United States',
+        code: 'US',
+        timezone: 'America/New_York'
+      }
+    },
+    webChannel: null,
+    externals: { tvrage: 21704, thetvdb: 83610, imdb: 'tt1327801' },
+    image: {
+      medium: 'http://static.tvmaze.com/uploads/images/medium_portrait/0/73.jpg',
+      original: 'http://static.tvmaze.com/uploads/images/original_untouched/0/73.jpg'
+    },
+    summary: '<p><b>Glee </b>is a musical comedy about a group of ambitious and talented young adults in search of strength, acceptance and, ultimately, their voice.</p>',
+    updated: 1536145055,
+    _links: {
+      self: { href: 'http://api.tvmaze.com/shows/8' },
+      previousepisode: { href: 'http://api.tvmaze.com/episodes/142185' }
+    }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5709"),
+    id: 243,
+    url: 'http://www.tvmaze.com/shows/243/conan',
+    name: 'Conan',
+    type: 'Talk Show',
+    language: 'English',
+    genres: [ 'Comedy' ],
+    status: 'Running',
+    runtime: 60,
+    premiered: '2010-11-08',
+    officialSite: 'http://teamcoco.com/schedule',
+    schedule: {
+      time: '23:00',
+      days: [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday' ]
+    },
+    rating: { average: 7.6 },
+    weight: 96,
+    network: {
+      id: 32,
+      name: 'TBS',
+      country: {
+        name: 'United States',
+        code: 'US',
+        timezone: 'America/New_York'
+      }
+    },
+    webChannel: null,
+    externals: { tvrage: 25927, thetvdb: 194751, imdb: 'tt1637574' },
+    image: {
+      medium: 'http://static.tvmaze.com/uploads/images/medium_portrait/1/4583.jpg',
+      original: 'http://static.tvmaze.com/uploads/images/original_untouched/1/4583.jpg'
+    },
+    summary: "<p>The biggest celebrities, the hottest musical guests, the craziest sketches... and Andy Richter, to boot? 
+Yes, some would say Conan O'Brien's talk show on TBS has everything a late night viewer could want.</p>",
+    updated: 1535637041,
+    _links: {
+      self: { href: 'http://api.tvmaze.com/shows/243' },
+      previousepisode: { href: 'http://api.tvmaze.com/episodes/1518767' }
+    }
+  }
+]
+movieData>
+
+				operador de evaluacion $expr
+		
+Permite el uso de expresiones de agregación dentro del lenguaje de consulta.
+Los argumentos pueden ser cualquier expresión de agregación válida . Para obtener más información, consulte Expresiones .
+
+
+
+financialData> db.sales.find()
+[
+  {
+    _id: ObjectId("6410975ec3933dd3b7192916"),
+    volume: 80,
+    target: 100
+  },
+  {
+    _id: ObjectId("6410975ec3933dd3b7192917"),
+    volume: 100,
+    target: 70
+  },
+  {
+    _id: ObjectId("6410975ec3933dd3b7192918"),
+    volume: 120,
+    target: 200
+  }
+]
+financialData> db.sales.find({$expr: {$gt:["$volume","$target"]}})
+[
+  {
+    _id: ObjectId("6410975ec3933dd3b7192917"),
+    volume: 100,
+    target: 70
+  }
+]
+financialData>
+
+
+			encontrar datos en array
+
+
+por ejemplo en los siguientes datos encontrar el hobbie "sport"
+
+user> db.users.find()
+[
+  {
+    _id: ObjectId("640fee97c3933dd3b7192912"),
+    name: 'sergio',
+    hobbies: [
+      { title: 'cooking', frequency: 5 },
+      { title: 'cars', frequency: 2 }
+    ],
+    phone: '012090788',
+    age: 30
+  },
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    phone: 375159
+  },
+  {
+    _id: ObjectId("640ff243c3933dd3b7192915"),
+    name: 'Anna',
+    hobbies: [
+      { title: 'YOga', frequency: 3 },
+      { title: 'sport', frequency: 4 }
+    ],
+    phone: '23254353533',
+    age: null
+  }
+]
+  		seria asi:
+
+user> db.users.find({"hobbies.title":"sport"})
+[
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    phone: 375159
+  },
+  {
+    _id: ObjectId("640ff243c3933dd3b7192915"),
+    name: 'Anna',
+    hobbies: [
+      { title: 'YOga', frequency: 3 },
+      { title: 'sport', frequency: 4 }
+    ],
+    phone: '23254353533',
+    age: null
+  }
+]
+
+
+			operador de array $size
+
+
+sirve para encontrar datos con array usando el tamaño del array, ejemplo:
+
+
+user> db.users.find()
+[
+  {
+    _id: ObjectId("640fee97c3933dd3b7192912"),
+    name: 'sergio',
+    hobbies: [
+      { title: 'cooking', frequency: 5 },
+      { title: 'cars', frequency: 2 }
+    ],
+    phone: '012090788',
+    age: 30
+  },
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    phone: 375159
+  },
+  {
+    _id: ObjectId("640ff243c3933dd3b7192915"),
+    name: 'Anna',
+    hobbies: [
+      { title: 'YOga', frequency: 3 },
+      { title: 'sport', frequency: 4 }
+    ],
+    phone: '23254353533',
+    age: null
+  },
+  {
+    _id: ObjectId("6410acb6c3933dd3b7192919"),
+    name: 'jorge',
+    hobbies: [ 'sport', 'cars', 'yoga' ]
+  }
+]
+user> db.users.find({hobbies:{$size:3}})
+[
+  {
+    _id: ObjectId("6410acb6c3933dd3b7192919"),
+    name: 'jorge',
+    hobbies: [ 'sport', 'cars', 'yoga' ]
+  }
+]
+
+
+			operador $all
+
+
+
+busca en arrays y selecciona los que contenga ese operador ejemplo:
+
+seriesData> db.series.find()
+[
+  {
+    _id: ObjectId("6410bc1aa42e787061504891"),
+    title: 'Supercharged Teaching',
+    meta: { rating: 9.3, aired: 2016, runtime: 60 },
+    visitors: 370000,
+    expectedVisitors: 1000000,
+    genre: [ 'thriller', 'action' ]
+  },
+  {
+    _id: ObjectId("6410bc1aa42e787061504892"),
+    title: 'The Last Student Returns',
+    meta: { rating: 9.5, aired: 2018, runtime: 100 },
+    visitors: 1300000,
+    expectedVisitors: 1550000,
+    genre: [ 'thriller', 'drama', 'action' ]
+  },
+  {
+    _id: ObjectId("6410bc1aa42e787061504893"),
+    title: 'Teach me if you can',
+    meta: { rating: 8.5, aired: 2014, runtime: 90 },
+    visitors: 590378,
+    expectedVisitors: 500000,
+    genre: [ 'action', 'thriller' ]
+  },
+  {
+    _id: ObjectId("6410c502c3933dd3b719291b"),
+    title: 'other movie',
+    rating: 8,
+    genre: [ 'comedy' ]
+  }
+]
+
+seriesData> db.series.find({genre: {$all:["action","thriller"]}})
+[
+  {
+    _id: ObjectId("6410bc1aa42e787061504891"),
+    title: 'Supercharged Teaching',
+    meta: { rating: 9.3, aired: 2016, runtime: 60 },
+    visitors: 370000,
+    expectedVisitors: 1000000,
+    genre: [ 'thriller', 'action' ]
+  },
+  {
+    _id: ObjectId("6410bc1aa42e787061504892"),
+    title: 'The Last Student Returns',
+    meta: { rating: 9.5, aired: 2018, runtime: 100 },
+    visitors: 1300000,
+    expectedVisitors: 1550000,
+    genre: [ 'thriller', 'drama', 'action' ]
+  },
+  {
+    _id: ObjectId("6410bc1aa42e787061504893"),
+    title: 'Teach me if you can',
+    meta: { rating: 8.5, aired: 2014, runtime: 90 },
+    visitors: 590378,
+    expectedVisitors: 500000,
+    genre: [ 'action', 'thriller' ]
+  }
+]
+
+
+				$elemMatch
+
+
+$elemMatch es un operador de consulta en MongoDB que se utiliza para hacer consultas en matrices o subdocumentos con múltiples campos. El operador $elemMatch se utiliza para especificar una o más condiciones que deben cumplirse simultáneamente para que se devuelva un documento en la consulta.
+
+En resumen, $elemMatch se utiliza para hacer consultas en matrices que contienen objetos complejos con varios campos y para garantizar que se devuelvan solo los documentos que satisfacen todas las condiciones especificadas.
+
+ejemplo:
+
+user> db.users.find({$and: [{"hobbies.title":"sport"},{"hobbies.frequency":3}]})
+[
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    phone: 375159
+  },
+  {
+    _id: ObjectId("640ff243c3933dd3b7192915"),
+    name: 'Anna',
+    hobbies: [
+      { title: 'YOga', frequency: 3 },
+      { title: 'sport', frequency: 4 }
+    ],
+    phone: '23254353533',
+    age: null
+  }
+]
+user> db.users.find({hobbies: {$elemMatch:{title: "sport",frequency:2}}})
+
+user> db.users.find({hobbies: {$elemMatch:{title: "sport",frequency:3}}})
+[
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    phone: 375159
+  }
+]
+
+
+						sort en shell
+
+
+ejemplo:
+	ordenael rating asendentemente
+seriesData> db.series.find().sort({"meta.rating":1})
+[
+  {
+    _id: ObjectId("6410c502c3933dd3b719291b"),
+    title: 'other movie',
+    rating: 8,
+    genre: [ 'comedy' ]
+  },
+  {
+    _id: ObjectId("6410bc1aa42e787061504893"),
+    title: 'Teach me if you can',
+    meta: { rating: 8.5, aired: 2014, runtime: 90 },
+    visitors: 590378,
+    expectedVisitors: 500000,
+    genre: [ 'action', 'thriller' ]
+  },
+  {
+    _id: ObjectId("6410bc1aa42e787061504891"),
+    title: 'Supercharged Teaching',
+    meta: { rating: 9.3, aired: 2016, runtime: 60 },
+    visitors: 370000,
+    expectedVisitors: 1000000,
+    genre: [ 'thriller', 'action' ]
+  },
+  {
+    _id: ObjectId("6410bc1aa42e787061504892"),
+    title: 'The Last Student Returns',
+    meta: { rating: 9.5, aired: 2018, runtime: 100 },
+    visitors: 1300000,
+    expectedVisitors: 1550000,
+    genre: [ 'thriller', 'drama', 'action' ]
+  }
+]
+seriesData>
+
+
+              ordena el ratin decendentemente
+
+
+seriesData> db.series.find().sort({"meta.rating":-1})
+[
+  {
+    _id: ObjectId("6410bc1aa42e787061504892"),
+    title: 'The Last Student Returns',
+    meta: { rating: 9.5, aired: 2018, runtime: 100 },
+    visitors: 1300000,
+    expectedVisitors: 1550000,
+    genre: [ 'thriller', 'drama', 'action' ]
+  },
+  {
+    _id: ObjectId("6410bc1aa42e787061504891"),
+    title: 'Supercharged Teaching',
+    meta: { rating: 9.3, aired: 2016, runtime: 60 },
+    visitors: 370000,
+    expectedVisitors: 1000000,
+    genre: [ 'thriller', 'action' ]
+  },
+  {
+    _id: ObjectId("6410bc1aa42e787061504893"),
+    title: 'Teach me if you can',
+    meta: { rating: 8.5, aired: 2014, runtime: 90 },
+    visitors: 590378,
+    expectedVisitors: 500000,
+    genre: [ 'action', 'thriller' ]
+  },
+  {
+    _id: ObjectId("6410c502c3933dd3b719291b"),
+    title: 'other movie',
+    rating: 8,
+    genre: [ 'comedy' ]
+  }
+]
+
+				cursor
+
+					limit
+
+ejemplo:
+
+movieData> db.movies.find().limit(2)
+[
+  {
+    _id: ObjectId("640d15ac69b830e794ba561f"),
+    id: 2,
+    url: 'http://www.tvmaze.com/shows/2/person-of-interest',
+    name: 'Person of Interest',
+    type: 'Scripted',
+    language: 'English',
+    genres: [ 'Drama', 'Action', 'Crime' ],
+    status: 'Ended',
+    runtime: 60,
+    premiered: '2011-09-22',
+    officialSite: 'http://www.cbs.com/shows/person_of_interest/',
+    schedule: { time: '22:00', days: [ 'Tuesday' ] },
+    rating: { average: 9 },
+    weight: 96,
+    network: {
+      id: 2,
+      name: 'CBS',
+      country: {
+        name: 'United States',
+        code: 'US',
+        timezone: 'America/New_York'
+      }
+    },
+    webChannel: null,
+    externals: { tvrage: 28376, thetvdb: 248742, imdb: 'tt1839578' },
+    image: {
+      medium: 'http://static.tvmaze.com/uploads/images/medium_portrait/163/407679.jpg',
+      original: 'http://static.tvmaze.com/uploads/images/original_untouched/163/407679.jpg'
+    },
+    summary: `<p>You are being watched. The government has a secret system, a machine that spies on you every hour of every day. I know because I built it. I designed the Machine to detect acts of terror but it sees everything. Violent crimes involving ordinary people. People like you. Crimes the government considered "irrelevant". They wouldn't act so I decided I would. But I needed a partner. Someone with the skills to intervene. Hunted by the authorities, we work in secret. You'll never find us. But victim or perpetrator, if your number is up, we'll find you.</p>`,
+    updated: 1535507028,
+    _links: {
+      self: { href: 'http://api.tvmaze.com/shows/2' },
+      previousepisode: { href: 'http://api.tvmaze.com/episodes/659372' }
+    }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5620"),
+    id: 1,
+    url: 'http://www.tvmaze.com/shows/1/under-the-dome',
+    name: 'Under the Dome',
+    type: 'Scripted',
+    language: 'English',
+    genres: [ 'Drama', 'Science-Fiction', 'Thriller' ],
+    status: 'Ended',
+    runtime: 60,
+    premiered: '2013-06-24',
+    officialSite: 'http://www.cbs.com/shows/under-the-dome/',
+    schedule: { time: '22:00', days: [ 'Thursday' ] },
+    rating: { average: 6.5 },
+    weight: 91,
+    network: {
+      id: 2,
+      name: 'CBS',
+      country: {
+        name: 'United States',
+        code: 'US',
+        timezone: 'America/New_York'
+      }
+    },
+    webChannel: null,
+    externals: { tvrage: 25988, thetvdb: 264492, imdb: 'tt1553656' },
+    image: {
+      medium: 'http://static.tvmaze.com/uploads/images/medium_portrait/0/1.jpg',
+      original: 'http://static.tvmaze.com/uploads/images/original_untouched/0/1.jpg'
+    },
+    summary: "<p><b>Under the Dome</b> is the story of a small town that is suddenly and inexplicably sealed off from the rest of the world by an enormous transparent dome. The town's inhabitants must deal with surviving the post-apocalyptic conditions while searching for answers about the dome, where it came from and if and when it will go away.</p>",
+    updated: 1529612668,
+    _links: {
+      self: { href: 'http://api.tvmaze.com/shows/1' },
+      previousepisode: { href: 'http://api.tvmaze.com/episodes/185054' }
+    }
+  }
+]
+
+
+				proyecciones en array
+
+
+ejemplo
+
+movieData> db.movies.findOne({},{name:1,rating:1,genres:1})
+{
+  _id: ObjectId("640d15ac69b830e794ba561f"),
+  name: 'Person of Interest',
+  genres: [ 'Drama', 'Action', 'Crime' ],
+  rating: { average: 9 }
+}
+para seleccionar un solo genero por ejemplo "drama" de los 240 doc seria asi:
+
+movieData> db.movies.find({genres:"Drama"},{name:1,rating:1,"genres.$":1}).limit(1)
+[
+  {
+    _id: ObjectId("640d15ac69b830e794ba561f"),
+    name: 'Person of Interest',
+    genres: [ 'Drama' ],
+    rating: { average: 9 }
+  }
+]
+movieData>
+
+					si queremos proyectar filtrar por un dato pero proyectar otro seria asi:
+
+movieData> db.movies.find({genres:"Drama"},{name:1,rating:1,genres:{$elemMatch: {$eq:"Horror"}}}).limit(10)
+[
+  {
+    _id: ObjectId("640d15ac69b830e794ba561f"),
+    name: 'Person of Interest',
+    rating: { average: 9 }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5620"),
+    name: 'Under the Dome',
+    rating: { average: 6.5 }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5621"),
+    name: 'Arrow',
+    rating: { average: 7.6 }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5623"),
+    name: 'True Detective',
+    rating: { average: 8.3 }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5624"),
+    name: 'Homeland',
+    rating: { average: 8.3 }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5625"),
+    name: 'Glee',
+    rating: { average: 6.7 }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5626"),
+    name: 'Revenge',
+    rating: { average: 8 }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5627"),
+    name: 'Bitten',
+    rating: { average: 7.6 },
+    genres: [ 'Horror' ]
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5628"),
+    name: 'Grimm',
+    rating: { average: 8.5 }
+  },
+  {
+    _id: ObjectId("640d15ac69b830e794ba5629"),
+    name: 'Continuum',
+    rating: { average: 8.2 }
+  }
+]
+
+
+			operadores de actualizacion
+
+
+				$inc  este operador incrementa un calor en especifico
+
+
+ejemplo: el registro de jorge se actualiza nombre y se incrementa 30 años la edad del registro
+
+user> db.users.findOne({name:"jorge"})
+{
+  _id: ObjectId("6410ad57c3933dd3b719291a"),
+  name: 'jorge',
+  hobbies: [ { title: 'sport', frequency: 2 }, { title: 'cars', frequency: 1 } ],
+  isSpor: true,
+  age: 59,
+  phone: 21212121
+}
+user> db.users.updateOne({_id:ObjectId("6410ad57c3933dd3b719291a")},{$inc:{age:30},$set:{name: " luis gutierrez"}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+user> db.users.findOne({_id:ObjectId("6410ad57c3933dd3b719291a")})
+{
+  _id: ObjectId("6410ad57c3933dd3b719291a"),
+  name: ' luis gutierrez',
+  hobbies: [ { title: 'sport', frequency: 2 }, { title: 'cars', frequency: 1 } ],
+  isSpor: true,
+  age: 89,
+  phone: 21212121
+}
+
+
+				operador $max, $min
+
+ejemplo:
+
+		user> db.users.findOne({_id:ObjectId("6410acb6c3933dd3b7192919")})
+{
+  _id: ObjectId("6410acb6c3933dd3b7192919"),
+  name: 'jorge luis gutierrez',
+  hobbies: [ 'sport', 'cars', 'yoga' ],
+  age: 33,
+  phone: 783283767
+}
+user> db.users.updateOne({_id:ObjectId("6410acb6c3933dd3b7192919")},{$min:{age:30}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+user> db.users.findOne({_id:ObjectId("6410acb6c3933dd3b7192919")})
+{
+  _id: ObjectId("6410acb6c3933dd3b7192919"),
+  name: 'jorge luis gutierrez',
+  hobbies: [ 'sport', 'cars', 'yoga' ],
+  age: 30,
+  phone: 783283767
+}
+
+				mul
+
+en ese ejemplo sirve para multiplicar por un numero en especifico en este caso se multiplica por un 10%
+
+ser> db.users.updateOne({_id:ObjectId("6410acb6c3933dd3b7192919")},{$mul:{age:1.1}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+user> db.users.findOne({_id:ObjectId("6410acb6c3933dd3b7192919")})
+{
+  _id: ObjectId("6410acb6c3933dd3b7192919"),
+  name: 'jorge luis gutierrez',
+  hobbies: [ 'sport', 'cars', 'yoga' ],
+  age: 33,
+  phone: 783283767
+}
+
+
+
+			oprerador $unset 
+sirve para desabilitar campos o borrar
+
+ejemplo:
+
+user> db.users.updateMany({isSpor:true},{$unset: {phone:""}})
+{ matchedCount: 1,
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 2,
+  modifiedCount: 2,One({_id:ObjectId("6410acb6c3933dd3b7192919")})
+  upsertedCount: 0
+} _id: ObjectId("6410acb6c3933dd3b7192919"),
+user> db.users.find()
+[ hobbies: [ 'sport', 'cars', 'yoga' ],
+  {ge: 33,
+    _id: ObjectId("640fee97c3933dd3b7192912"),
+    name: 'sergio',
+    hobbies: [.updateO
+      { title: 'cooking', frequency: 5 },
+      { title: 'cars', frequency: 2 }
+    ],
+    phone: '012090788',
+    age: 30
+  },
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    isSpor: true,
+    age: 59
+  },
+
+
+				$rename
+
+
+cambia el nombre a el campo ejemplos:
+
+user> db.users.updateMany({"hobbies.title":"sport"},{$rename: {isSpor:"isSport"}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 2,
+  modifiedCount: 2,
+  upsertedCount: 0
+}
+
+ _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    age: 59,
+    isSport: true
+  },
+
+otro ejemplo:
+
+
+user> db.users.updateMany({},{$rename: {age:"ageTotal"}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 4,
+  modifiedCount: 4,
+  upsertedCount: 0
+}
+user> db.users.find()
+[
+  {
+    _id: ObjectId("640fee97c3933dd3b7192912"),
+    name: 'sergio',
+    hobbies: [
+      { title: 'cooking', frequency: 5 },
+      { title: 'cars', frequency: 2 }
+    ],
+    phone: '012090788',
+    ageTotal: 30
+  },
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3 },
+      { title: 'cooking', frequency: 6 }
+    ],
+    isSport: true,
+    ageTotal: 59
+  },
+
+					upsert 
+
+se agrega como tercer parametro en updateOne o Many y lo que hace es que actualiza el dato y si no existe lo crea
+ejemplo:
+
+ db.users.updateMany({name:"Sheko"},{$set:{ageTotal:"23",hobbies:[{title:"sport"}],isSport:true,phone:45435435}},{upsert:true})
+{
+  acknowledged: true,
+  insertedId: ObjectId("641356c008205b94b16a5aec"),
+  matchedCount: 0,
+  modifiedCount: 0,
+  upsertedCount: 1
+}
+	aqui lo creo a Sheko
+user> db.users.findOne({name:"Sheko"})
+{
+  _id: ObjectId("641356c008205b94b16a5aec"),
+  name: 'Sheko',
+  ageTotal: '23',
+  hobbies: [ { title: 'sport' } ],
+  isSport: true,
+  phone: 45435435
+}
+
+
+				updating Matched Array Elements
+
+ejemplo:
+
+ser> db.users.updateMany({hobbies: {$elemMatch: {title:"sport",frequency:{$gte:3}}}},{$set:{"hobbies.$.highFrequency":true}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 2,
+  modifiedCount: 2,
+  upsertedCount: 0
+}
+user> db.users.find({hobbies:{$elemMatch:{title:"sport",frequency:{$gte:3}}}})
+[
+  {
+    _id: ObjectId("640fef89c3933dd3b7192913"),
+    name: 'Max',
+    hobbies: [
+      { title: 'sport', frequency: 3, highFrequency: true },
+      { title: 'cooking', frequency: 6 }
+    ],
+    isSport: true,
+    ageTotal: 59
+  },
+  {
+    _id: ObjectId("640ff243c3933dd3b7192915"),
+    name: 'Anna',
+    hobbies: [
+      { title: 'YOga', frequency: 3 },
+      { title: 'sport', frequency: 4, highFrequency: true }
+    ],
+    isSport: true,
+    ageTotal: 59
+  }
+]
+
+
+				push
+
+
+aderiri elementos array
+
+
+user> db.users.updateOne({name:"Anna"},{$push:{hobbies:{title:"cars",frequency:3}}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+user> db.users.find({name:"Anna"})
+[
+  {
+    _id: ObjectId("640ff243c3933dd3b7192915"),
+    name: 'Anna',
+    hobbies: [
+      { title: 'YOga', frequency: 3 },
+      { title: 'sport', frequency: 4, highFrequency: true },
+      { title: 'cars', frequency: 3 }
+    ],
+    isSport: true,
+    ageTotal: 59
+  }
+]
+
+			ingresar varios elementos al array
+
+user> db.users.updateOne({name:"Anna"},{$push:{hobbies:{$each:[{title:"cars",frequency:3},{title:"cooking",frequency:1}]}}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+user> db.users.find({name:"Anna"})
+[
+  {
+    _id: ObjectId("640ff243c3933dd3b7192915"),
+    name: 'Anna',
+    hobbies: [
+      { title: 'YOga', frequency: 3 },
+      { title: 'sport', frequency: 4, highFrequency: true },
+      { title: 'cars', frequency: 3 },
+      { title: 'cars', frequency: 3 },
+      { title: 'cooking', frequency: 1 }
+    ],
+    isSport: true,
+    ageTotal: 59
+  }
+]
+
+
+mismo ejemplo: sorteandolo por frequency
+
+user> db.users.updateOne({name:"Ruly"},{$push:{hobbies:{$each:[{title:"cars",frequency:3},{title:"cooking",frequency:1}],$sort:{frequency:1}}}},{upsert:true})
+{
+  acknowledged: true,
+  insertedId: ObjectId("6414b89a08205b94b16a67e0"),
+  matchedCount: 0,
+  modifiedCount: 0,
+  upsertedCount: 1
+}
+user> db.users.find({name:"Ruly"})
+[
+  {
+    _id: ObjectId("6414b89a08205b94b16a67e0"),
+    name: 'Ruly',
+    hobbies: [
+      { title: 'cooking', frequency: 1 },
+      { title: 'cars', frequency: 3 }
+    ]
+  }
+]
+
+				quitar un elemento del array con $pull
+
+ejemplo:
+
+user> db.users.updateOne({name:"Ruly"},{$pull:{hobbies:{title:"sport"}}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+user> db.users.find({name:"Ruly"})
+[
+  {
+    _id: ObjectId("6414b89a08205b94b16a67e0"),
+    name: 'Ruly',
+    hobbies: [
+      { title: 'cooking', frequency: 1 },
+      { title: 'cars', frequency: 3 },
+      { title: 'yoga', frequency: 5 }
+    ]
+  }
+]
+
+					$addToSet
+
+hece lo pmismo que push pero no duplica dato si ya existe
+
+user> db.users.updateOne({name:"Ruly"},{$addToSet:{hobbies:{title:"yoga",frequency:5}}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 0,
+  upsertedCount: 0
+}
+user> db.users.find({name:"Ruly"})
+[
+  {
+    _id: ObjectId("6414b89a08205b94b16a67e0"),
+    name: 'Ruly',
+    hobbies: [
+      { title: 'cooking', frequency: 1 },
+      { title: 'cars', frequency: 3 },
+      { title: 'yoga', frequency: 5 }
+    ]
+  }
+]
+
+				$pop
+
+quita elementos del array ejemplo:
+
+user> db.users.find({name:"Ruly"})
+[
+  {
+    _id: ObjectId("6414b89a08205b94b16a67e0"),
+    name: 'Ruly',
+    hobbies: [
+      { title: 'cars', frequency: 3 },
+      { title: 'yoga', frequency: 5 },
+      { title: 'yoga', frequency: 1 }
+    ]
+  }
+]
+user> db.users.updateOne({name:"Ruly"},{$pop:{hobbies:1}})
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+user> db.users.find({name:"Ruly"})
+[
+  {
+    _id: ObjectId("6414b89a08205b94b16a67e0"),
+    name: 'Ruly',
+    hobbies: [
+      { title: 'cars', frequency: 3 },
+      { title: 'yoga', frequency: 5 }
+    ]
+  }
+]
+
+
+				indices
+
+
+contactData> db.contacts.explain("executionStats").find({"dob.age":{$gt:60}})
+{
+  explainVersion: '1',
+  queryPlanner: {
+    namespace: 'contactData.contacts',
+    indexFilterSet: false,
+    parsedQuery: { 'dob.age': { '$gt': 60 } },
+    queryHash: '08155E45',
+    planCacheKey: '08155E45',
+    maxIndexedOrSolutionsReached: false,
+    maxIndexedAndSolutionsReached: false,
+    maxScansToExplodeReached: false,
+    winningPlan: {
+      stage: 'COLLSCAN',
+      filter: { 'dob.age': { '$gt': 60 } },
+      direction: 'forward'
+    },
+    rejectedPlans: []
+  },
+  executionStats: {
+    executionSuccess: true,
+    nReturned: 1222,
+    executionTimeMillis: 8,
+    totalKeysExamined: 0,
+    totalDocsExamined: 5000,
+    executionStages: {
+      stage: 'COLLSCAN',
+      filter: { 'dob.age': { '$gt': 60 } },
+      nReturned: 1222,
+      executionTimeMillisEstimate: 0,
+      works: 5002,
+      advanced: 1222,
+      needTime: 3779,
+      needYield: 0,
+      saveState: 5,
+      restoreState: 5,
+      isEOF: 1,
+      direction: 'forward',
+      docsExamined: 5000
+    }
+  },
+  command: {
+    find: 'contacts',
+    filter: { 'dob.age': { '$gt': 60 } },
+    '$db': 'contactData'
+  },
+  serverInfo: {
+    host: 'LAPTOP-GLK0QJ6U',
+    port: 27017,
+    version: '6.0.4',
+    gitVersion: '44ff59461c1353638a71e710f385a566bcd2f547'
+  },
+  serverParameters: {
+    internalQueryFacetBufferSizeBytes: 104857600,
+    internalQueryFacetMaxOutputDocSizeBytes: 104857600,
+    internalLookupStageIntermediateDocumentMaxSizeBytes: 104857600,
+    internalDocumentSourceGroupMaxMemoryBytes: 104857600,
+    internalQueryMaxBlockingSortMemoryUsageBytes: 104857600,
+    internalQueryProhibitBlockingMergeOnMongoS: 0,
+    internalQueryMaxAddToSetBytes: 104857600,
+    internalDocumentSourceSetWindowFieldsMaxMemoryBytes: 104857600
+  },
+  ok: 1
+}
+
+			creando un index
+
+contactData> db.contacts.createIndex({"dob.age":1})
+
+		el 1 significa orden asendente
+
+borrar index crado  contactData> db.contacts.dropIndex({"dob.age":1})
+{ nIndexesWas: 2, ok: 1 }
+
+
+
+			agrregation group
+
+ejemplo:
+
+
+nalytics> db.persons.findOne()
+{
+  _id: ObjectId("641be96638eb188ca589ea62"),
+  gender: 'male',
+  name: { title: 'mr', first: 'victor', last: 'pedersen' },
+  location: {
+    street: '2156 stenbjergvej',
+    city: 'billum',
+    state: 'nordjylland',
+    postcode: 56649,
+    coordinates: { latitude: '-29.8113', longitude: '-31.0208' },
+    timezone: {
+      offset: '+5:30',
+      description: 'Bombay, Calcutta, Madras, New Delhi'
+    }
+  },
+  email: 'victor.pedersen@example.com',
+  login: {
+    uuid: 'fbb3c298-2cea-4415-84d1-74233525c325',
+    username: 'smallbutterfly536',
+    password: 'down',
+    salt: 'iW5QrgwW',
+    md5: '3cc8b8a4d69321a408cd46174e163594',
+    sha1: '681c0353b34fae08422686eea190e1c09472fc1f',
+    sha256: 'eb5251e929c56dfd19fc597123ed6ec2d0130a2c3c1bf8fc9c2ff8f29830a3b7'
+  },
+
+nalytics> db.persons.aggregate([
+...   {$match:{gender:"female"}},
+...   {$group:{_id:{state:"$location.state"},totalPersons:{$sum:1}}}
+... ])
+[
+  { _id: { state: 'troms - romsa' }, totalPersons: 9 },
+  { _id: { state: 'corrèze' }, totalPersons: 1 },
+  { _id: { state: 'loiret' }, totalPersons: 1 },
+  { _id: { state: 'rondônia' }, totalPersons: 4 },
+  { _id: { state: 'hawaii' }, totalPersons: 3 },
+  { _id: { state: 'gwynedd county' }, totalPersons: 3 },
+  { _id: { state: 'distrito federal' }, totalPersons: 5 },
+  { _id: { state: 'gwent' }, totalPersons: 1 },
+  { _id: { state: 'bay of plenty' }, totalPersons: 7 },
+  { _id: { state: 'espírito santo' }, totalPersons: 8 },
+  { _id: { state: 'amasya' }, totalPersons: 1 },
+  { _id: { state: 'herefordshire' }, totalPersons: 2 },
+  { _id: { state: 'wyoming' }, totalPersons: 6 },
+  { _id: { state: 'ceuta' }, totalPersons: 7 },
+  { _id: { state: 'southern ostrobothnia' }, totalPersons: 7 },
+  { _id: { state: 'diyarbakır' }, totalPersons: 3 },
+  { _id: { state: 'hakkâri' }, totalPersons: 3 },
+  { _id: { state: 'mayotte' }, totalPersons: 2 },
+  { _id: { state: 'ticino' }, totalPersons: 8 },
+  { _id: { state: 'surrey' }, totalPersons: 4 }
+
+
+agregando ademasun sort por orden decendente:
+
+nalytics> db.persons.aggregate([ { $match: { gender: "female" } }, { $group: { _id: { state: "$location.state" }, 
+totalPersons: { $sum: 1 } } }, { $sort: { totalPersons: -1 } }])
+[
+  { _id: { state: 'midtjylland' }, totalPersons: 33 },
+  { _id: { state: 'nordjylland' }, totalPersons: 27 },
+  { _id: { state: 'australian capital territory' }, totalPersons: 24 },
+  { _id: { state: 'new south wales' }, totalPersons: 24 },
+  { _id: { state: 'syddanmark' }, totalPersons: 24 },
+  { _id: { state: 'south australia' }, totalPersons: 22 },
+  { _id: { state: 'hovedstaden' }, totalPersons: 21 },
+  { _id: { state: 'danmark' }, totalPersons: 21 },
+  { _id: { state: 'overijssel' }, totalPersons: 20 },
+  { _id: { state: 'queensland' }, totalPersons: 20 },
+  { _id: { state: 'sjælland' }, totalPersons: 19 },
+  { _id: { state: 'nova scotia' }, totalPersons: 17 },
+  { _id: { state: 'gelderland' }, totalPersons: 16 },
+  { _id: { state: 'yukon' }, totalPersons: 16 },
+  { _id: { state: 'northwest territories' }, totalPersons: 16 },
+  { _id: { state: 'canterbury' }, totalPersons: 16 },
+  { _id: { state: 'northern territory' }, totalPersons: 15 },
+  { _id: { state: 'bayern' }, totalPersons: 15 },
+  { _id: { state: 'tasmania' }, totalPersons: 15 },
+
+			projection con agregate
+protecta el nombre completo y adema spodemos cambiar a mayusculas:
+
+
+nalytics> db.persons.aggregate([
+...   {$project:{
+...     _id:0,
+...     gender:1,
+...     fullName:{
+...       $concat:[{$toUpper:"$name.first"},
+...       " ",
+...       {$toUpper:"$name.last"}]
+...     }
+...
+...   }}
+... ])
+[
+  { gender: 'male', fullName: 'VICTOR PEDERSEN' },
+  { gender: 'male', fullName: 'ZACHARY LO' },
+  { gender: 'male', fullName: 'GIDEON VAN DRONGELEN' },
+  { gender: 'male', fullName: 'HARVEY CHAMBERS' },
+  { gender: 'female', fullName: 'پریا پارسا' },
+  { gender: 'female', fullName: 'MAEVA WILSON' },
+  { gender: 'female', fullName: 'OLAV OEHME' },
+  { gender: 'female', fullName: 'SHONA KEMPERMAN' },
+  { gender: 'female', fullName: 'MADELEINE TILL' },
+  { gender: 'female', fullName: 'LOUISE GRAHAM' },
+  { gender: 'male', fullName: 'ISOLINO VIANA' },
+  { gender: 'female', fullName: 'MESTAN KAPLANGı' },
+  { gender: 'female', fullName: 'KATIE WELCH' },
+  { gender: 'male', fullName: 'CARL JACOBS' },
+  { gender: 'male', fullName: 'ELIJAH LEWIS' },
+  { gender: 'female', fullName: 'SANDRA LORENZO' },
+  { gender: 'male', fullName: 'بنیامین سالاری' },
+  { gender: 'female', fullName: 'ANNE RUIZ' },
+  { gender: 'female', fullName: 'ANAëLLE ADAM' },
+  { gender: 'female', fullName: 'DELIA DURAND' }
+]
+
+
+
+
+
+
+
+
+
+
