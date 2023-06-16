@@ -87,8 +87,60 @@ const actualizarImagen = async( req, res=response ) => {
         await modelo.save();
 
 
-
         res.json(modelo)
+
+}
+
+
+const mostrarImagen = async(req, res=response) => {
+
+
+    const {id, coleccion} = req.params
+    let modelo;
+    
+
+    switch (coleccion) {
+        case "usuarios":
+
+            modelo = await Usuario.findById(id);
+            if( !modelo ){
+                return res.status(400).json({
+                    msg:`No existe el usuario con el id ${id}`
+                })
+            }
+            
+            break;
+        case "productos":
+
+            modelo = await Producto.findById(id);
+            if( !modelo ){
+                return res.status(400).json({
+                    msg:`No existe Producto con el id ${id}`
+                })
+            }
+            
+            break;
+    
+        default:
+            return res.status(500).json({msg:"No existe validacion para esta opcion"})
+            
+    }
+
+
+    //Limpiar imagenes previas  
+
+    if ( modelo.img){
+
+        //hay que borrar la imagen del servidor 
+        const pathImagen = path.join(__dirname,"../uploads",coleccion,modelo.img);
+        if(fs.existsSync(pathImagen)){// verifica si exsite el path
+            return res.sendFile(pathImagen)
+        }
+    }
+
+
+
+    res.json({msg:"falta place holder"})
 
 
 }
@@ -97,4 +149,5 @@ const actualizarImagen = async( req, res=response ) => {
 module.exports = {
     cargarArchivo,
     actualizarImagen,
+    mostrarImagen
 }
