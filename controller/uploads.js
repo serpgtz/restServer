@@ -1,5 +1,6 @@
 
- 
+const path = require("path")
+const fs = require("fs")
 const { response } = require("express");
 const { subirArchivo } = require("../helpers")
 
@@ -11,11 +12,7 @@ const { model } = require("mongoose");
 const cargarArchivo = async(req,res=response) => {
    
   
-    if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
-      res.status(400).send('No hay archivos que subir.');
-      return;
-    }
-
+    
     try {
         //  const nombre = await subirArchivo(req.files,["txt"],"textos"); aqui un ejemplo como le paso que formato quiero que acepte y el nombre de la carperta en donde quiero que se guarden
          const nombre = await subirArchivo(req.files,undefined,"imgs");
@@ -69,6 +66,20 @@ const actualizarImagen = async( req, res=response ) => {
                 return res.status(500).json({msg:"No existe validacion para esta opcion"})
                 
         }
+
+
+        //Limpiar imagenes previas  
+
+        if ( modelo.img){
+
+            //hay que borrar la imagen del servidor 
+            const pathImagen = path.join(__dirname,"../uploads",coleccion,modelo.img);
+            if(fs.existsSync(pathImagen)){// verifica si exsite el path
+                fs.unlinkSync(pathImagen)//borra el archivo
+            }
+        }
+
+
 
         const nombre = await subirArchivo(req.files,undefined,coleccion);
         modelo.img = nombre;
